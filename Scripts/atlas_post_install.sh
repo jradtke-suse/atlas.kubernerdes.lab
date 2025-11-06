@@ -8,7 +8,7 @@
 zypper --non-interactive in sudo vim wget curl
 echo 'mansible  ALL=(ALL) NOPASSWD: ALL' | tee /etc/sudoers.d/mansible-nopasswd-all
 
-# Use this pattern 
+# Install DHCP/DNS using the following pattern:
 zypper --non-interactive in -t pattern dhcp_dns_server
 
 #### #### ####
@@ -22,20 +22,25 @@ for FILE in kubernerdes.lab db-12.10.10.in-addr.arpa db-13.10.10.in-addr.arpa db
 do
   curl -o /var/lib/named/master/$FILE https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/var/lib/named/master/$FILE
 done
-chown named:named /var/lib/named/master/*
+chown -R root:root /var/lib/named/master/*
+chmod 755 /var/lib/named/master; chmod 744 /var/lib/named/master/*
 systemctl enable named --now
 
 #### #### ####
 ## Setup DHCP
 cp /etc/dhcpd.conf /etc/dhcpd.conf.$(date +%F)
 mkdir /etc/dhcpd.d/
-curl -o /etc/dhcpd.conf https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/etc/dhcpd.conf
-curl -o /etc/dhcpd.d/dhcpd-hosts.conf https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/etc/dhcpd.d/dhcpd-hosts.conf
+curl -o /etc/dhcpd.conf https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerdes.lab/etc/dhcpd.conf
+
+## This was the old/previous configuration
+## curl -o /etc/dhcpd.conf https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/etc/dhcpd.conf
+## curl -o /etc/dhcpd.d/dhcpd-hosts.conf https://raw.githubusercontent.com/jradtke-suse/kubernerd.kubernerdes.lab/refs/heads/main/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/etc/dhcpd.d/dhcpd-hosts.conf
 sed -i -e 's/DHCPD_INTERFACE=""/DHCPD_INTERFACE="eth0"/g' /etc/sysconfig/dhcpd
 systemctl enable dhcpd --now
 systemctl status dhcpd
 
-# Setup WWW server with PHP
+# Setup WWW server with PHP - the PHP portion is optional
+# TODO: break this in to 2 sections: required/optional
 suseconnect -p sle-module-web-scripting/15.7/x86_64
 zypper --non-interactive install apache2 libyaml-devel
 zypper --non-interactive install php8 apache2-mod_php8
@@ -105,9 +110,9 @@ echo "/data/srv/www/htdocs /srv/www/htdocs/ none bind,defaults 0 0" | sudo tee -
 mount -a
 
 cd /srv/www/htdocs
-# TODO - need to figure out the correct URLs for these files
-wget ./kubernerd.kubernerdes.lab/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/srv/www/htdocs/index.php
+# TODO - need to figure out the correct URLs for the HTML files
+# wget ./kubernerd.kubernerdes.lab/Files/backups/10.10.12.8/kubernerd.kubernerdes.lab/srv/www/htdocs/index.php
 
 #### #### ####
-### Install Ansible
+### Install Ansible (future use)
 zypper -n in ansible
