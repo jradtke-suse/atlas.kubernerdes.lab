@@ -5,7 +5,7 @@
 # build box with minimal with SSH port open
 
 # su -
-zypper --non-interactive in sudo vim wget curlG
+zypper --non-interactive in sudo vim wget curl
 echo 'mansible  ALL=(ALL) NOPASSWD: ALL' | tee /etc/sudoers.d/mansible-nopasswd-all
 
 # Use this pattern 
